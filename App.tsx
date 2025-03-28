@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import styles from './AppStyles';
+import { View, Text, ActivityIndicator, FlatList } from 'react-native';
+import styles from './AppStyles'; // Importation du fichier de styles
 
 const API_URL = 'https://s4-8078.nuage-peda.fr/forum/api/messages?page=1';
 
@@ -37,8 +37,6 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      <Text>Yababaaaaaaa</Text>
-      <StatusBar style="auto" />
       {/* Navbar */}
       <View style={styles.navbar}>
         <Text style={styles.navbarTitle}>Forum</Text>
