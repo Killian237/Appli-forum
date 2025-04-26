@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, ScrollView, TouchableOpacity, Image } from "react-native";
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, FlatList } from "react-native";
 import { useMessages } from '../context/MessageContext'; // Import du hook useMessages pour accéder au contexte
 import * as ImagePicker from "expo-image-picker";
 import styles from "../styles/AppStyles";
@@ -9,6 +9,7 @@ export default function Forum() {
   const [currentUser, setCurrentUser] = useState("Admin");
   const [message, setMessage] = useState("");
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const { forums } = useMessages();
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -78,6 +79,22 @@ export default function Forum() {
           <Text style={styles.sendButtonText}>Envoyer</Text>
         </TouchableOpacity>
       </View>
+      <View style={{ flex: 1, padding: 20 }}>
+      <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 20 }}>Forums</Text>
+      <FlatList
+        data={forums}
+        keyExtractor={item => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={{
+            padding: 12, borderBottomWidth: 1, borderColor: '#eee'
+          }}>
+            <Text style={{ fontSize: 16 }}>{item.title}</Text>
+          </View>
+        )}
+        ListEmptyComponent={<Text>Aucun forum pour l’instant.</Text>}
+      />
     </View>
+    </View>
+    
   );
 }

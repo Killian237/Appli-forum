@@ -1,4 +1,3 @@
-// App.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, FlatList } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -7,6 +6,7 @@ import Accueil from './pages/Accueil';
 import Forum from './pages/Forum';
 import { Ionicons } from '@expo/vector-icons';
 import { MessageProvider, useMessages } from './context/MessageContext';
+
 
 const API_URL = 'https://s4-8078.nuage-peda.fr/forum/api/messages?page=1';
 
