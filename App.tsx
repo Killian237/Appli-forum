@@ -1,22 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, FlatList } from 'react-native';
+import { View, Text, ActivityIndicator, Button } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Accueil from './pages/Accueil';
 import Forum from './pages/Forum';
+import Register from './pages/Register';
+import Login from './pages/Login';
 import { Ionicons } from '@expo/vector-icons';
 import { MessageProvider, useMessages } from './context/MessageContext';
-
+import { UserProvider, useUser } from './context/UserContext'; 
+import styles from './styles/AppStyles'; 
 
 const API_URL = 'https://s4-8078.nuage-peda.fr/forum/api/messages?page=1';
-
 const Tab = createBottomTabNavigator();
 
 const App = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { messages, setMessages } = useMessages(); // Utilisation du contexte pour les messages
+  const { setMessages } = useMessages();
+  const { user, logout } = useUser();  // Utilisation du context pour accéder à l'utilisateur et à la fonction logout
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,7 +29,7 @@ const App = () => {
         console.log('Réponse JSON:', result);
 
         if (result?.member) {
-          setMessages(result.member); // Mise à jour des messages via le contexte
+          setMessages(result.member);
         } else {
           throw new Error('Données inattendues');
         }
@@ -50,8 +53,19 @@ const App = () => {
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarIcon: ({ color, size }) => {
-              let iconName: 'home-outline' | 'chatbox-ellipses-outline' =
-                route.name === 'Accueil' ? 'home-outline' : 'chatbox-ellipses-outline';
+              let iconName:
+                | 'home-outline'
+                | 'chatbox-ellipses-outline'
+                | 'person-add-outline'
+                | 'log-in-outline' =
+                route.name === 'Accueil'
+                  ? 'home-outline'
+                  : route.name === 'Forum'
+                  ? 'chatbox-ellipses-outline'
+                  : route.name === 'Register'
+                  ? 'person-add-outline'
+                  : 'log-in-outline';
+
               return <Ionicons name={iconName} size={size} color={color} />;
             },
             tabBarActiveTintColor: '#007bff',
@@ -60,15 +74,29 @@ const App = () => {
         >
           <Tab.Screen name="Accueil" component={Accueil} />
           <Tab.Screen name="Forum" component={Forum} />
+
+          {/* Afficher Register et Login seulement si l'utilisateur n'est pas connecté */}
+          {!user && <Tab.Screen name="Register" component={Register} />}
+          {!user && <Tab.Screen name="Login" component={Login} />}
         </Tab.Navigator>
       </NavigationContainer>
+
+      {/* Afficher le prénom de l'utilisateur connecté en haut à droite */}
+      {user && (
+        <View style={styles.userInfoContainer}>
+          <Text style={styles.userName}>{user.prenom}</Text>
+          <Button title="Logout" onPress={logout} /> 
+        </View>
+      )}
     </View>
   );
 };
 
 // Envelopper l'application avec le provider pour accéder au contexte
 export default () => (
-  <MessageProvider>
-    <App />
-  </MessageProvider>
+  <UserProvider>
+    <MessageProvider>
+      <App />
+    </MessageProvider>
+  </UserProvider>
 );
