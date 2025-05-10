@@ -5,11 +5,11 @@ import * as ImagePicker from "expo-image-picker";
 import styles from "../styles/AppStyles";
 
 export default function Forum() {
-  const { messages, setMessages } = useMessages(); // Accès au contexte
+  const { messages, setMessages, forums } = useMessages(); // Accès au contexte
   const [currentUser, setCurrentUser] = useState("Admin");
   const [message, setMessage] = useState("");
   const [imageUri, setImageUri] = useState<string | null>(null);
-  const { forums } = useMessages();
+  const [selectedForum, setSelectedForum] = useState(null); // Forum sélectionné
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -39,62 +39,73 @@ export default function Forum() {
 
   return (
     <View style={styles.container_forum}>
-      <View style={styles.navbar}>
-        <Text style={styles.navbarTitle}>Forum</Text>
-      </View>
+      {/* Affichage conditionnel */}
+      {selectedForum ? (
+        // Affichage des messages de l'API et du système de conversation
+        <>
+          {/* Bouton Retour */}
+          <TouchableOpacity
+            onPress={() => setSelectedForum(null)} // Réinitialise le forum sélectionné
+            style={styles.backButton}
+          >
+            <Text style={styles.backButtonText}>Retour</Text>
+          </TouchableOpacity>
 
-      <ScrollView style={styles.messagesContainer}>
-        {messages && messages.length > 0 ? (
-          messages.map((msg: any) => (
-            <View key={msg.id} style={styles.messageBox}>
-              {/* Affichage de l'ID de l'utilisateur */}
-              <Text style={styles.messageSender}>Utilisateur ID : {msg.user}</Text>
-              {/* Affichage du contenu du message */}
-              <Text>{msg.contenu}</Text>
-              {msg.image && (
-                <Image
-                  source={{ uri: msg.image }}
-                  style={styles.messageImage}
-                  resizeMode="cover"
-                />
-              )}
-            </View>
-          ))
-        ) : (
-          <Text>Aucun message à afficher.</Text>
-        )}
-      </ScrollView>
+          <ScrollView style={styles.messagesContainer}>
+            {messages && messages.length > 0 ? (
+              messages.map((msg: any) => (
+                <View key={msg.id} style={styles.messageBox}>
+                  <Text style={styles.messageSender}>
+                    Utilisateur : {msg.user.nom} {msg.user.prenom}
+                  </Text>
+                  <Text>{msg.contenu}</Text>
+                  {msg.image && (
+                    <Image
+                      source={{ uri: msg.image }}
+                      style={styles.messageImage}
+                      resizeMode="cover"
+                    />
+                  )}
+                </View>
+              ))
+            ) : (
+              <Text>Aucun message à afficher.</Text>
+            )}
+          </ScrollView>
 
-      <View style={styles.inputRow}>
-        <TextInput
-          style={styles.input}
-          placeholder="Écrivez un message..."
-          value={message}
-          onChangeText={setMessage}
-        />
-        <TouchableOpacity onPress={pickImage} style={styles.iconButton}>
-          <Text>📷</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
-          <Text style={styles.sendButtonText}>Envoyer</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 20 }}>Forums</Text>
-      <FlatList
-        data={forums}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={{
-            padding: 12, borderBottomWidth: 1, borderColor: '#eee'
-          }}>
-            <Text style={{ fontSize: 16 }}>{item.title}</Text>
+          <View style={styles.inputRow}>
+            <TextInput
+              style={styles.input}
+              placeholder="Écrivez un message..."
+              value={message}
+              onChangeText={setMessage}
+            />
+            <TouchableOpacity onPress={pickImage} style={styles.iconButton}>
+              <Text>📷</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
+              <Text style={styles.sendButtonText}>Envoyer</Text>
+            </TouchableOpacity>
           </View>
-        )}
-        ListEmptyComponent={<Text>Aucun forum pour l’instant.</Text>}
-      />
+        </>
+      ) : (
+        // Affichage de la liste des forums
+        <View style={{ flex: 1, padding: 20 }}>
+          <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 20 }}>Forums</Text>
+          <FlatList
+            data={forums}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => setSelectedForum(item)}>
+                <View style={{ padding: 12, borderBottomWidth: 1, borderColor: '#eee' }}>
+                  <Text style={{ fontSize: 16 }}>{item.title}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            ListEmptyComponent={<Text>Aucun forum pour l’instant.</Text>}
+          />
+        </View>
+      )}
     </View>
-    </View>
-    
   );
 }

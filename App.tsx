@@ -72,8 +72,9 @@ const App = () => {
             tabBarInactiveTintColor: 'gray',
           })}
         >
-          <Tab.Screen name="Accueil" component={Accueil} />
-          <Tab.Screen name="Forum" component={Forum} />
+          {/* Afficher Accueil et Forum seulement si l'utilisateur est connecté */}
+          {user && <Tab.Screen name="Accueil" component={Accueil} />}
+          {user && <Tab.Screen name="Forum" component={Forum} />}
 
           {/* Afficher Register et Login seulement si l'utilisateur n'est pas connecté */}
           {!user && <Tab.Screen name="Register" component={Register} />}

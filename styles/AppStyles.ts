@@ -140,22 +140,33 @@ const styles = StyleSheet.create({
 
   /* Nom du user */
   userInfoContainer: {
-    position: 'absolute',
-    top: 45,
-    right: 25,
-    zIndex: 20,  
-    flexDirection: 'row',  // Aligne les éléments en ligne
-    alignItems: 'center',  // Aligne verticalement le texte et le bouton
+    position: 'absolute', // Position absolue pour placer en haut
+    top: 10, // Distance depuis le haut de l'écran
+    right: 10, // Distance depuis la droite de l'écran
+    flexDirection: 'row', // Affichage en ligne
+    alignItems: 'center', // Alignement vertical
+    zIndex: 10, // Assurez-vous que le conteneur est au-dessus des autres éléments
   },
   userName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'black',
-    marginRight: 10,
+    marginRight: 10, // Espacement entre le nom et le bouton
   },
-  
   /* Nom du user */
 
+  /* bouton retour */
+  backButton: {
+    padding: 10,
+    backgroundColor: '#007bff',
+    borderRadius: 5,
+    margin: 10,
+    alignSelf: 'flex-start',
+  },
+  backButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default styles;
