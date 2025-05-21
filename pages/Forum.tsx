@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, FlatList } from "react-native";
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, FlatList, Button, Alert } from "react-native";
 import { useMessages } from '../context/MessageContext'; // Import du hook useMessages pour accéder au contexte
 import * as ImagePicker from "expo-image-picker";
 import styles from "../styles/AppStyles";
+import { useUser } from '../context/UserContext';
 
 export default function Forum() {
   const { messages, setMessages, forums } = useMessages(); // Accès au contexte
@@ -10,6 +11,9 @@ export default function Forum() {
   const [message, setMessage] = useState("");
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [selectedForum, setSelectedForum] = useState(null); // Forum sélectionné
+  const [nom, setNom] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { user } = useUser(); // Pour récupérer l'utilisateur connecté
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -34,6 +38,47 @@ export default function Forum() {
       setMessages((prev) => [...prev, newMsg]); // Ajout du message au tableau via le contexte
       setMessage("");
       setImageUri(null);
+    }
+  };
+
+  const handleCreateForum = async () => {
+    if (!nom) {
+      Alert.alert("Erreur", "Veuillez entrer un nom de forum.");
+      return;
+    }
+    setLoading(true);
+    if (!user) {
+      Alert.alert("Erreur", "Utilisateur non connecté.");
+      setLoading(false);
+      return;
+    }
+    try {
+      const response = await fetch('https://s4-8078.nuage-peda.fr/forum/api/forums', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/ld+json',
+          'Content-Type': 'application/ld+json',
+        },
+        body: JSON.stringify({
+          nom,
+          user: `/forum/api/users/${user.id}`,
+          created_at: new Date().toISOString(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log("Erreur:", errorData);
+        throw new Error("Erreur lors de la création du forum");
+      }
+
+      Alert.alert("Succès", "Forum créé avec succès !");
+      setNom('');
+      // Tu peux ici rafraîchir la liste des forums si besoin
+    } catch (error: any) {
+      Alert.alert("Erreur", error.message || "Une erreur s'est produite.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -89,22 +134,20 @@ export default function Forum() {
           </View>
         </>
       ) : (
-        // Affichage de la liste des forums
-        <View style={{ flex: 1, padding: 20 }}>
-          <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 20 }}>Forums</Text>
-          <FlatList
-            data={forums}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => setSelectedForum(item)}>
-                <View style={{ padding: 12, borderBottomWidth: 1, borderColor: '#eee' }}>
-                  <Text style={{ fontSize: 16 }}>{item.title}</Text>
-                </View>
-              </TouchableOpacity>
-            )}
-            ListEmptyComponent={<Text>Aucun forum pour l’instant.</Text>}
-          />
-        </View>
+        <FlatList
+          data={forums}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => setSelectedForum(item)}>
+              <View style={{ padding: 12, borderBottomWidth: 1, borderColor: '#eee' }}>
+                <Text style={styles.forumTitle}>
+                  {item.title || item.nom}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={<Text>Aucun forum pour l’instant.</Text>}
+        />
       )}
     </View>
   );
