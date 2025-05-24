@@ -6,6 +6,7 @@ interface User {
   id: number;
   nom: string;
   prenom: string;
+  roles: string[];
 }
 
 interface UserContextType {

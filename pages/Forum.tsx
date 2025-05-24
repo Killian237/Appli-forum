@@ -24,6 +24,12 @@ export default function Forum() {
   const [loading, setLoading] = useState(false);
   const [emailToAdd, setEmailToAdd] = useState("");
   const { user } = useUser();
+  const adminForums = forums.filter(forum =>
+    typeof forum.user === 'object'
+      ? forum.user.id === user?.id
+      : forum.user.endsWith(`/${user?.id}`)
+  );
+
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -239,7 +245,7 @@ export default function Forum() {
         </>
       ) : (
         <FlatList
-          data={forums}
+          data={adminForums}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => setSelectedForum(item)}>
@@ -248,7 +254,7 @@ export default function Forum() {
               </View>
             </TouchableOpacity>
           )}
-          ListEmptyComponent={<Text>Aucun forum pour l’instant.</Text>}
+          ListEmptyComponent={<Text>Aucun forum créé par vous.</Text>}
         />
       )}
     </View>

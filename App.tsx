@@ -6,10 +6,11 @@ import Accueil from './pages/Accueil';
 import Forum from './pages/Forum';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import Admin from './pages/Admin';
 import { Ionicons } from '@expo/vector-icons';
 import { MessageProvider, useMessages } from './context/MessageContext';
-import { UserProvider, useUser } from './context/UserContext'; 
-import styles from './styles/AppStyles'; 
+import { UserProvider, useUser } from './context/UserContext';
+import styles from './styles/AppStyles';
 
 const API_URL = 'https://s4-8078.nuage-peda.fr/forum/api/messages?page=1';
 const Tab = createBottomTabNavigator();
@@ -61,10 +62,10 @@ const App = () => {
                 route.name === 'Accueil'
                   ? 'home-outline'
                   : route.name === 'Forum'
-                  ? 'chatbox-ellipses-outline'
-                  : route.name === 'Register'
-                  ? 'person-add-outline'
-                  : 'log-in-outline';
+                    ? 'chatbox-ellipses-outline'
+                    : route.name === 'Register'
+                      ? 'person-add-outline'
+                      : 'log-in-outline';
 
               return <Ionicons name={iconName} size={size} color={color} />;
             },
@@ -76,6 +77,11 @@ const App = () => {
           {user && <Tab.Screen name="Accueil" component={Accueil} />}
           {user && <Tab.Screen name="Forum" component={Forum} />}
 
+          {/* Afficher Admin uniquement si l'utilisateur est admin */}
+          {user && user.roles?.includes("ROLE_ADMIN") && (
+            <Tab.Screen name="Admin" component={Admin} />
+          )}
+
           {/* Afficher Register et Login seulement si l'utilisateur n'est pas connecté */}
           {!user && <Tab.Screen name="Register" component={Register} />}
           {!user && <Tab.Screen name="Login" component={Login} />}
@@ -86,7 +92,7 @@ const App = () => {
       {user && (
         <View style={styles.userInfoContainer}>
           <Text style={styles.userName}>{user.prenom}</Text>
-          <Button title="Logout" onPress={logout} /> 
+          <Button title="Logout" onPress={logout} />
         </View>
       )}
     </View>

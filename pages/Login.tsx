@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/AppStyles';
-import { useUser } from '../context/UserContext';  // Importer useUser
+import { useUser } from '../context/UserContext'; 
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -42,13 +42,12 @@ export default function Login() {
         id: data.data.id,
         nom: data.data.nom,
         prenom: data.data.prenom,
+        roles: data.data.roles,
       };
 
-      // Stockage du token et de l'utilisateur dans AsyncStorage
       await AsyncStorage.setItem('authToken', token);
       await AsyncStorage.setItem('userInfo', JSON.stringify(user));
 
-      // Mise à jour de l'utilisateur dans le contexte
       setUser(user);
 
       Alert.alert('Succès', 'Connecté avec succès !');
